@@ -55,6 +55,10 @@ export default function Widgets({ onModelChange }: { onModelChange?: (model: str
       title: "AI Model",
       isMaximizable: true,
       isRemovable: false,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 300,
+      position: { x: 0, y: 0, width: 33.33, height: 300 },
       component: (
         <div className="space-y-2">
           <ModelSelector onModelChange={onModelChange} className="w-full" />
@@ -70,6 +74,10 @@ export default function Widgets({ onModelChange }: { onModelChange?: (model: str
       title: "API Anahtarları",
       isMaximizable: true,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 300,
+      position: { x: 33.33, y: 0, width: 33.33, height: 300 },
       component: (
         <div className="space-y-2">
           <APIKeyManager className="w-full" />
@@ -85,6 +93,10 @@ export default function Widgets({ onModelChange }: { onModelChange?: (model: str
       title: "Embedding Model",
       isMaximizable: true,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 300,
+      position: { x: 66.66, y: 0, width: 33.33, height: 300 },
       component: (
         <div className="space-y-2">
           <EmbeddingModelSelector className="w-full" />
@@ -97,40 +109,56 @@ export default function Widgets({ onModelChange }: { onModelChange?: (model: str
     {
       id: "weather-widget",
       type: "weather",
-      title: "Weather",
+      title: "Hava Durumu",
       isMaximizable: true,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 350,
+      position: { x: 0, y: 310, width: 33.33, height: 350 },
       component: <WeatherWidget data={weatherData} />
     },
     {
       id: "tasks-widget",
       type: "tasks",
-      title: "Tasks",
+      title: "Görevler",
       isMaximizable: true,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 350,
+      position: { x: 33.33, y: 310, width: 33.33, height: 350 },
       component: <TasksWidget tasks={tasks} onToggleTask={toggleTaskCompletion} />
     },
     {
       id: "calendar-widget",
       type: "calendar",
-      title: "Calendar",
+      title: "Takvim",
       isMaximizable: true,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 350,
+      position: { x: 66.66, y: 310, width: 33.33, height: 350 },
       component: <CalendarWidget />
     },
     {
       id: "voice-recognition",
       type: "voice-recognition",
-      title: "Voice Recognition",
+      title: "Ses Tanıma",
       isMaximizable: false,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 150,
+      position: { x: 0, y: 670, width: 33.33, height: 150 },
       component: (
         <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="text-slate-400 text-sm">Web Speech API</div>
             <div className="flex items-center">
               <div className="w-2 h-2 bg-emerald-400 rounded-full mr-1"></div>
-              <span className="text-xs text-emerald-400">Active</span>
+              <span className="text-xs text-emerald-400">Aktif</span>
             </div>
           </div>
           <div className="text-xs text-slate-500">
@@ -149,17 +177,25 @@ export default function Widgets({ onModelChange }: { onModelChange?: (model: str
     {
       id: "mcp-server",
       type: "mcp-server",
-      title: "MCP Servers",
+      title: "MCP Sunucuları",
       isMaximizable: true,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 250,
+      position: { x: 33.33, y: 670, width: 33.33, height: 250 },
       component: <MCPServerManager />
     },
     {
       id: "desktop-controller",
       type: "custom",
-      title: "Desktop Controller",
+      title: "Masaüstü Kontrolü",
       isMaximizable: true,
       isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 33.33,
+      defaultHeight: 250,
+      position: { x: 66.66, y: 670, width: 33.33, height: 250 },
       component: <DesktopController />
     }
   ])
@@ -175,17 +211,11 @@ export default function Widgets({ onModelChange }: { onModelChange?: (model: str
     setAvailableWidgets(availableWidgets.filter(w => w.id !== id))
   }
 
-  // Handle reordering widgets
-  const handleReorderWidgets = (widgets: WidgetDefinition[]) => {
-    setAvailableWidgets(widgets)
-  }
-
   return (
     <WidgetContainer
       widgets={availableWidgets}
       onAddWidget={handleAddWidget}
       onRemoveWidget={handleRemoveWidget}
-      onReorderWidgets={handleReorderWidgets}
     />
   )
 }

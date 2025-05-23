@@ -145,33 +145,59 @@ export default function ZekaInterface() {
 
         {/* Main Interface - Using new flexible layout system */}
         <div className="z-10 zeka-layout">
-          {/* Left Panel - Widgets */}
+          {/* Left Panel - System Status */}
           <div className="w-full lg:w-1/4 space-y-4 order-2 lg:order-1 transition-all duration-500">
-            <Widgets onModelChange={handleModelChange} />
+            <div className="p-4 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-lg">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-white font-medium flex items-center">
+                  <div className="w-2 h-2 rounded-full bg-white mr-2 animate-pulse"></div>
+                  Sistem Durumu
+                </h3>
+                <div className="ios-control">
+                  <div className="w-1 h-1 rounded-full bg-white/80"></div>
+                </div>
+              </div>
+
+              <div className="space-y-3">
+                <StatusItem label="Çekirdek Sistemler" value="Çevrimiçi" status="green" />
+                <StatusItem label="Sinir Ağı" value="Aktif" status="green" />
+                <StatusItem label="Güvenlik Protokolü" value="Devrede" status="orange" />
+                <StatusItem label="Veri İşleme" value="Optimal" status="green" />
+                <StatusItem label="Ses Tanıma" value="Hazır" status="green" />
+                <StatusItem label="WebSocket" value={connected ? "Bağlı" : connecting ? "Bağlanıyor" : "Bağlantı Kesildi"} status={connected ? "green" : connecting ? "orange" : "red"} />
+                <StatusItem label="Mevcut Model" value={currentModel ? currentModel.split('/').pop() || "Varsayılan" : "Varsayılan"} status="green" />
+              </div>
+
+              <div className="mt-6">
+                <div className="flex items-center space-x-2 justify-center">
+                  <button
+                    onClick={() => setUseRealtime(!useRealtime)}
+                    className={cn(
+                      "px-4 py-2 rounded-xl text-sm font-medium transition-all duration-300 border border-white/10 backdrop-blur-md",
+                      useRealtime
+                        ? "bg-gradient-to-r from-blue-500/30 to-purple-500/30 hover:from-blue-500/40 hover:to-purple-500/40 shadow-md"
+                        : "bg-white/5 hover:bg-white/10"
+                    )}
+                  >
+                    <span>{useRealtime ? "Gerçek Zamanlı Mod" : "Standart Mod"}</span>
+                  </button>
+                </div>
+              </div>
+            </div>
           </div>
 
           {/* Center Panel - Conversation */}
           <div className="w-full lg:w-2/4 flex-1 flex flex-col order-1 lg:order-2 transition-all duration-500">
             <div className="mb-4 flex justify-between items-center">
               <div className="flex items-center">
-                <h2 className="text-sky-400 text-lg font-medium jarvis-text-glow">Z.E.K.A</h2>
-              </div>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => setUseRealtime(!useRealtime)}
-                  className={cn(
-                    "px-4 py-1.5 rounded-md text-xs font-medium transition-all duration-300 jarvis-border",
-                    useRealtime
-                      ? "bg-gradient-to-r from-sky-800/70 to-sky-900/70 hover:from-sky-700/70 hover:to-sky-800/70 shadow-md"
-                      : "bg-gradient-to-r from-slate-700/70 to-slate-800/70 hover:from-slate-600/70 hover:to-slate-700/70"
-                  )}
-                >
-                  <span>{useRealtime ? "Gerçek Zamanlı Mod" : "Standart Mod"}</span>
-                </button>
+                <h2 className="text-white text-lg font-medium flex items-center">
+                  <div className="w-2 h-2 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 mr-2"></div>
+                  Z.E.K.A
+                </h2>
               </div>
             </div>
 
-            <div className="flex-1 transition-all duration-500 shadow-xl zeka-panel zeka-panel-resizable">
+            <div className="flex-1 transition-all duration-500 shadow-xl rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10">
               {useRealtime ? (
                 <RealtimeConversationHub initialMessages={messages} currentModel={currentModel} />
               ) : (
@@ -180,23 +206,21 @@ export default function ZekaInterface() {
             </div>
           </div>
 
-          {/* Right Panel - System Status */}
+          {/* Right Panel - Denetim Merkezi */}
           <div className="w-full lg:w-1/4 space-y-4 order-3 transition-all duration-500">
-            <div className="zeka-panel p-4 h-full">
-              <div className="zeka-panel-header">
-                <h3 className="text-sky-400 font-medium flex items-center">
-                  <div className="w-1.5 h-1.5 rounded-full bg-sky-400 mr-2 animate-pulse"></div>
-                  System Status
+            <div className="p-4 rounded-2xl bg-black/60 backdrop-blur-xl border border-white/10 shadow-lg">
+              <div className="mb-4 flex items-center justify-between">
+                <h3 className="text-white font-medium flex items-center">
+                  <div className="w-2 h-2 rounded-full bg-white mr-2 animate-pulse"></div>
+                  Denetim Merkezi
                 </h3>
+                <div className="ios-control">
+                  <div className="w-1 h-1 rounded-full bg-white/80"></div>
+                </div>
               </div>
-              <div className="zeka-panel-content space-y-3">
-                <StatusItem label="Core Systems" value="Online" status="green" />
-                <StatusItem label="Neural Network" value="Active" status="green" />
-                <StatusItem label="Security Protocol" value="Engaged" status="orange" />
-                <StatusItem label="Data Processing" value="Optimal" status="green" />
-                <StatusItem label="Voice Recognition" value="Ready" status="green" />
-                <StatusItem label="WebSocket" value={connected ? "Connected" : connecting ? "Connecting" : "Disconnected"} status={connected ? "green" : connecting ? "orange" : "red"} />
-                <StatusItem label="Current Model" value={currentModel ? currentModel.split('/').pop() || "Default" : "Default"} status="green" />
+
+              <div className="mt-2">
+                <Widgets onModelChange={handleModelChange} />
               </div>
             </div>
           </div>
@@ -219,12 +243,18 @@ function StatusItem({ label, value, status }: { label: string; value: string; st
     red: "shadow-[0_0_5px_rgba(244,63,94,0.5)]",
   }
 
+  const statusBg = {
+    green: "bg-emerald-500/10",
+    orange: "bg-amber-500/10",
+    red: "bg-rose-500/10",
+  }
+
   return (
-    <div className="flex justify-between items-center p-2.5 rounded-md hover:bg-sky-900/10 transition-colors border border-sky-900/20">
-      <span className="text-slate-300">{label}</span>
+    <div className={`flex justify-between items-center p-3 rounded-xl transition-all duration-300 border border-white/5 ${statusBg[status]} hover:border-white/10 hover:shadow-md`}>
+      <span className="text-white/80">{label}</span>
       <div className="flex items-center">
-        <span className="text-white mr-2 font-mono text-sm">{value}</span>
-        <div className={`w-2 h-2 rounded-full ${statusColors[status]} ${statusGlow[status]} animate-pulse`}></div>
+        <span className="text-white mr-2 font-medium text-sm">{value}</span>
+        <div className={`w-2.5 h-2.5 rounded-full ${statusColors[status]} ${statusGlow[status]} animate-pulse`}></div>
       </div>
     </div>
   )

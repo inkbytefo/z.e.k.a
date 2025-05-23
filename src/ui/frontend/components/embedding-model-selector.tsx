@@ -37,12 +37,28 @@ export default function EmbeddingModelSelector({ onModelChange, className }: Emb
   const [dropdownPosition, setDropdownPosition] = useState({ top: 0, left: 0, width: 0 })
   const [mounted, setMounted] = useState(false)
 
-  // Modelleri yükle
+  // Modelleri ve API anahtarlarını yükle
   useEffect(() => {
-    const loadModels = async () => {
+    const loadData = async () => {
       try {
         setIsLoading(true)
         setError(null)
+
+        // API sağlayıcılarını yükle
+        try {
+          const providersResponse = await listAPIProviders()
+          setProviders(providersResponse.providers)
+        } catch (provErr) {
+          console.error("API sağlayıcıları yüklenirken hata:", provErr)
+        }
+
+        // API anahtarlarını yükle
+        try {
+          const keysResponse = await listAPIKeys()
+          setApiKeys(keysResponse.keys)
+        } catch (keyErr) {
+          console.error("API anahtarları yüklenirken hata:", keyErr)
+        }
 
         // Modelleri yükle
         const response = await getAvailableEmbeddingModels()
@@ -63,6 +79,9 @@ export default function EmbeddingModelSelector({ onModelChange, className }: Emb
           setCurrentModel(response.current_model)
           setCurrentFunction(response.current_function)
         }
+
+        // Eksik API anahtarlarını kontrol et
+        checkMissingAPIKeys(response.models)
       } catch (err) {
         console.error("Embedding modelleri yüklenirken hata:", err)
         setError("Embedding modelleri yüklenemedi")
@@ -71,8 +90,21 @@ export default function EmbeddingModelSelector({ onModelChange, className }: Emb
       }
     }
 
-    loadModels()
+    loadData()
   }, [])
+
+  // Eksik API anahtarlarını kontrol et
+  const checkMissingAPIKeys = (modelList: EmbeddingModelInfo[]) => {
+    // Modellerin sağlayıcılarını topla
+    const modelProviders = new Set(modelList.map(model => model.provider))
+
+    // Mevcut API anahtarlarını kontrol et
+    const existingKeys = new Set(apiKeys.map(key => key.service_name))
+
+    // Eksik API anahtarlarını bul
+    const missing = Array.from(modelProviders).filter(provider => !existingKeys.has(provider))
+    setMissingApiKeys(missing)
+  }
 
   // Modeli değiştir
   const handleModelChange = async (modelId: string) => {
@@ -283,6 +315,29 @@ export default function EmbeddingModelSelector({ onModelChange, className }: Emb
             </div>
           )}
 
+          {/* Eksik API anahtarı uyarısı */}
+          {missingApiKeys.length > 0 && (
+            <div className="px-3 py-2 bg-amber-900/30 border-b border-amber-800/50">
+              <div className="flex items-start text-xs text-amber-300">
+                <AlertCircle size={14} className="mr-1.5 mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium">Eksik API Anahtarları</p>
+                  <p className="mt-1">
+                    Bazı sağlayıcılar için API anahtarı eksik. Bu modelleri kullanmak için API anahtarlarını eklemeniz gerekiyor.
+                  </p>
+                  <div className="mt-1.5 flex flex-wrap gap-1">
+                    {missingApiKeys.map(provider => (
+                      <span key={provider} className="inline-flex items-center px-1.5 py-0.5 rounded-full text-xs bg-amber-900/50 border border-amber-700/50">
+                        <Key size={10} className="mr-1" />
+                        {provider}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Model listesi */}
           <div className="overflow-y-auto flex-1">
             {filteredModels.length === 0 ? (
@@ -291,31 +346,43 @@ export default function EmbeddingModelSelector({ onModelChange, className }: Emb
               </div>
             ) : (
               <div className="divide-y divide-cyan-500/10">
-                {filteredModels.map((model) => (
-                  <button
-                    key={model.id}
-                    onClick={() => handleModelChange(model.id)}
-                    className={`w-full px-3 py-3 text-left text-sm hover:bg-cyan-950/30 transition-colors flex items-center justify-between ${(model.id === currentModel || model.name === currentModel) ? 'bg-cyan-950/20' : ''}`}
-                  >
-                    <div className="flex-1 pr-2">
-                      <div className={`text-xs font-medium ${getProviderColor(model.provider)} flex items-center`}>
-                        <span className={`w-2 h-2 rounded-full mr-1 ${getProviderColor(model.provider)}`}></span>
-                        {model.provider}
-                      </div>
-                      <div className="text-white font-medium">{model.name}</div>
-                      <div className="text-xs text-gray-400 mt-0.5">{model.id}</div>
-                      {model.description && (
-                        <div className="text-xs text-gray-400 mt-1 italic">{model.description}</div>
-                      )}
-                    </div>
+                {filteredModels.map((model) => {
+                  // API anahtarı eksik mi kontrol et
+                  const isApiKeyMissing = missingApiKeys.includes(model.provider);
 
-                    {(model.id === currentModel || model.name === currentModel) && (
-                      <div className="bg-cyan-500/20 p-1 rounded-full">
-                        <Check size={16} className="text-cyan-400" />
+                  return (
+                    <button
+                      key={model.id}
+                      onClick={() => handleModelChange(model.id)}
+                      disabled={isApiKeyMissing}
+                      className={`w-full px-3 py-3 text-left text-sm hover:bg-cyan-950/30 transition-colors flex items-center justify-between ${(model.id === currentModel || model.name === currentModel) ? 'bg-cyan-950/20' : ''} ${isApiKeyMissing ? 'opacity-50 cursor-not-allowed' : ''}`}
+                    >
+                      <div className="flex-1 pr-2">
+                        <div className={`text-xs font-medium ${getProviderColor(model.provider)} flex items-center`}>
+                          <span className={`w-2 h-2 rounded-full mr-1 ${getProviderColor(model.provider)}`}></span>
+                          {model.provider}
+                          {isApiKeyMissing && (
+                            <span className="ml-2 text-amber-400 flex items-center">
+                              <Key size={10} className="mr-0.5" />
+                              API anahtarı gerekli
+                            </span>
+                          )}
+                        </div>
+                        <div className="text-white font-medium">{model.name}</div>
+                        <div className="text-xs text-gray-400 mt-0.5">{model.id}</div>
+                        {model.description && (
+                          <div className="text-xs text-gray-400 mt-1 italic">{model.description}</div>
+                        )}
                       </div>
-                    )}
-                  </button>
-                ))}
+
+                      {(model.id === currentModel || model.name === currentModel) && (
+                        <div className="bg-cyan-500/20 p-1 rounded-full">
+                          <Check size={16} className="text-cyan-400" />
+                        </div>
+                      )}
+                    </button>
+                  );
+                })}
               </div>
             )}
           </div>

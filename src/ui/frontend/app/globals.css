@@ -118,26 +118,73 @@ body {
 }
 
 /* Widget System */
-.widget-container {
-  @apply grid gap-4;
-  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+.widget-dashboard-container {
+  @apply relative min-h-[500px] w-full;
 }
 
 .widget {
-  @apply jarvis-panel p-0 overflow-hidden;
+  @apply p-0 overflow-hidden rounded-2xl;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  backdrop-filter: blur(12px);
+  background-color: rgba(20, 20, 25, 0.65);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  transition: all 0.3s ease;
+}
+
+.widget:hover {
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  border-color: rgba(255, 255, 255, 0.12);
+  transform: translateY(-1px);
 }
 
 .widget-header {
-  @apply flex items-center justify-between p-2 border-b border-sky-700/20 bg-sky-900/10;
+  @apply flex items-center justify-between p-3 bg-transparent;
+  cursor: move;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
 .widget-content {
-  @apply p-3;
+  @apply p-4 overflow-auto;
+}
+
+/* Dragging state */
+.widget.dragging {
+  opacity: 0.7;
+  z-index: 100;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  transform: scale(1.02);
+}
+
+/* Collapsed state */
+.widget.collapsed .widget-content {
+  display: none;
+}
+
+/* iOS 18 style controls */
+.ios-control {
+  @apply rounded-full bg-white/10 backdrop-blur-md p-2 transition-all duration-200;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.ios-control:hover {
+  @apply bg-white/15;
+  transform: scale(1.05);
+}
+
+.ios-control:active {
+  @apply bg-white/20;
+  transform: scale(0.95);
+}
+
+/* Widget control buttons */
+.widget-control-button {
+  @apply p-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors;
 }
 
 /* Responsive Layout Adjustments */
 @media (max-width: 768px) {
-  .widget-container {
-    grid-template-columns: 1fr;
+  .widget {
+    width: 100% !important;
+    left: 0 !important;
   }
 }

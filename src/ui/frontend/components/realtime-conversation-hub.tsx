@@ -428,79 +428,95 @@ export default function RealtimeConversationHub({
     <div className="flex flex-col h-full overflow-hidden">
       {/* Bağlantı Durumu Göstergesi */}
       <div className={cn(
-        "px-3 py-2 flex items-center justify-between border-b transition-colors rounded-t-lg",
+        "px-4 py-3 flex items-center justify-between border-b transition-colors rounded-t-xl",
         connected
-          ? "border-emerald-500/30 bg-emerald-950/10"
+          ? "border-white/10 bg-emerald-500/5 backdrop-blur-xl"
           : connecting
-            ? "border-amber-500/30 bg-amber-950/10"
-            : "border-rose-500/30 bg-rose-950/10"
+            ? "border-white/10 bg-amber-500/5 backdrop-blur-xl"
+            : "border-white/10 bg-rose-500/5 backdrop-blur-xl"
       )}>
         <div className="flex items-center">
           {connected ? (
-            <Wifi size={14} className="text-emerald-400 mr-2" />
+            <div className="w-8 h-8 rounded-full bg-emerald-500/10 flex items-center justify-center mr-2">
+              <Wifi size={16} className="text-emerald-400" />
+            </div>
           ) : connecting ? (
-            <Loader2 size={14} className="text-amber-400 mr-2 animate-spin" />
+            <div className="w-8 h-8 rounded-full bg-amber-500/10 flex items-center justify-center mr-2">
+              <Loader2 size={16} className="text-amber-400 animate-spin" />
+            </div>
           ) : (
-            <WifiOff size={14} className="text-rose-400 mr-2" />
+            <div className="w-8 h-8 rounded-full bg-rose-500/10 flex items-center justify-center mr-2">
+              <WifiOff size={16} className="text-rose-400" />
+            </div>
           )}
-          <span className={cn(
-            "text-xs font-medium",
-            connected
-              ? "text-emerald-400"
-              : connecting
-                ? "text-amber-400"
-                : "text-rose-400"
-          )}>
-            {connected
-              ? "Bağlantı Kuruldu"
-              : connecting
-                ? "Bağlanıyor..."
-                : "Bağlantı Kesildi"}
-          </span>
+          <div>
+            <span className={cn(
+              "text-sm font-medium",
+              connected
+                ? "text-white"
+                : connecting
+                  ? "text-white"
+                  : "text-white"
+            )}>
+              {connected
+                ? "Bağlantı Kuruldu"
+                : connecting
+                  ? "Bağlanıyor..."
+                  : "Bağlantı Kesildi"}
+            </span>
+            {currentModel && (
+              <div className="text-xs text-white/60 mt-0.5">
+                Model: {currentModel.split('/').pop()}
+              </div>
+            )}
+          </div>
         </div>
 
         <div className="flex items-center space-x-2">
           {!connected && !connecting && (
             <button
               onClick={() => connect()}
-              className="text-xs bg-sky-600/50 hover:bg-sky-600/80 px-2 py-0.5 rounded-md text-white flex items-center"
+              className="ios-control"
+              title="Yeniden Bağlan"
             >
-              <RefreshCw size={10} className="mr-1" />
-              Yeniden Bağlan
+              <RefreshCw size={14} className="text-white/80" />
             </button>
-          )}
-
-          {currentModel && (
-            <div className="text-xs text-sky-400 flex items-center border border-sky-700/30 px-2 py-0.5 rounded-md bg-sky-900/20">
-              <Wand2 size={10} className="mr-1" />
-              {currentModel.split('/').pop()}
-            </div>
           )}
         </div>
       </div>
 
       {/* Mesaj Alanı */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-transparent backdrop-blur-sm border-x border-sky-700/20">
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-transparent backdrop-blur-sm">
         {messages.map((message, index) => (
           <div
             key={index}
             className={cn(
-              "flex flex-col rounded-md p-3 shadow-lg transition-all duration-300",
+              "flex flex-col rounded-xl p-4 shadow-lg transition-all duration-300",
               message.role === "user"
-                ? "ml-auto max-w-[80%] bg-sky-900/40 backdrop-blur-sm border border-sky-700/30 hover:bg-sky-900/50"
-                : "mr-auto max-w-[85%] bg-slate-800/40 backdrop-blur-sm border border-slate-700/30 hover:bg-slate-800/50"
+                ? "ml-auto max-w-[80%] bg-blue-500/20 backdrop-blur-xl border border-white/10"
+                : "mr-auto max-w-[85%] bg-black/40 backdrop-blur-xl border border-white/10"
             )}
           >
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center">
-                <span className={cn(
-                  "text-xs font-medium",
-                  message.role === "user" ? "text-amber-300" : "text-sky-300"
-                )}>
-                  {message.role === "user" ? "Sen" : "ZEKA"}
-                </span>
+                {message.role === "user" ? (
+                  <div className="flex items-center">
+                    <div className="w-5 h-5 rounded-full bg-blue-500/20 flex items-center justify-center mr-1.5">
+                      <div className="w-2 h-2 rounded-full bg-blue-400"></div>
+                    </div>
+                    <span className="text-xs font-medium text-white">Sen</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center">
+                    <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center mr-1.5">
+                      <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                    </div>
+                    <span className="text-xs font-medium text-white">ZEKA</span>
+                  </div>
+                )}
+
                 {message.model && message.role === "assistant" && (
-                  <span className="ml-2 text-[10px] text-slate-300 bg-sky-900/30 px-1.5 py-0.5 rounded-sm">
+                  <span className="ml-2 text-[10px] text-white/70 bg-white/10 px-1.5 py-0.5 rounded-full">
                     {message.model.split('/').pop()}
                   </span>
                 )}
@@ -508,7 +524,7 @@ export default function RealtimeConversationHub({
 
               <div className="flex items-center">
                 {message.timestamp && (
-                  <span className="text-[10px] text-slate-300 mr-2">
+                  <span className="text-[10px] text-white/60 mr-2">
                     {new Date(message.timestamp).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
                   </span>
                 )}
@@ -516,49 +532,51 @@ export default function RealtimeConversationHub({
                 {message.role === "assistant" && (
                   <button
                     onClick={() => toggleSpeakMessage(message.content)}
-                    className={cn(
-                      "text-slate-300 hover:text-sky-400 transition-colors",
-                      isSpeaking && "text-sky-400 animate-pulse"
-                    )}
+                    className="ios-control w-6 h-6 flex items-center justify-center"
                     title={isSpeaking ? "Sesi durdur" : "Sesli dinle"}
                   >
-                    {isSpeaking ? <VolumeX size={14} /> : <Volume2 size={14} />}
+                    {isSpeaking ? <VolumeX size={12} className="text-white/80" /> : <Volume2 size={12} className="text-white/80" />}
                   </button>
                 )}
               </div>
             </div>
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">{message.content}</p>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed text-white">{message.content}</p>
           </div>
         ))}
 
         {/* Yazıyor göstergesi */}
         {isTyping && (
-          <div className="flex flex-col max-w-[85%] rounded-md p-3 mr-auto bg-slate-800/40 backdrop-blur-sm border border-sky-700/30 shadow-lg">
+          <div className="flex flex-col max-w-[85%] rounded-xl p-4 mr-auto bg-black/40 backdrop-blur-xl border border-white/10 shadow-lg">
             <div className="flex items-center justify-between mb-2">
               <div className="flex items-center">
-                <span className="text-xs font-medium text-sky-300">ZEKA</span>
+                <div className="w-5 h-5 rounded-full bg-purple-500/20 flex items-center justify-center mr-1.5">
+                  <div className="w-2 h-2 rounded-full bg-purple-400"></div>
+                </div>
+                <span className="text-xs font-medium text-white">ZEKA</span>
                 {currentModel && (
-                  <span className="ml-2 text-[10px] text-slate-300 bg-sky-900/30 px-1.5 py-0.5 rounded-sm">
+                  <span className="ml-2 text-[10px] text-white/70 bg-white/10 px-1.5 py-0.5 rounded-full">
                     {currentModel.split('/').pop()}
                   </span>
                 )}
               </div>
               <div className="flex space-x-1">
-                <div className="w-1 h-3 bg-sky-400 animate-pulse rounded-full"></div>
-                <div className="w-1 h-5 bg-sky-400 animate-pulse rounded-full"></div>
-                <div className="w-1 h-2 bg-sky-400 animate-pulse rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-purple-400 animate-pulse rounded-full"></div>
+                <div className="w-1.5 h-1.5 bg-purple-400 animate-pulse rounded-full delay-75"></div>
+                <div className="w-1.5 h-1.5 bg-purple-400 animate-pulse rounded-full delay-150"></div>
               </div>
             </div>
-            <p className="text-sm whitespace-pre-wrap leading-relaxed">{currentAssistantMessage}</p>
+            <p className="text-sm whitespace-pre-wrap leading-relaxed text-white">{currentAssistantMessage}</p>
           </div>
         )}
 
         {/* Hata mesajı */}
         {error && (
-          <div className="max-w-full rounded-md p-3 mx-auto bg-rose-900/30 border border-rose-700/30 shadow-lg">
+          <div className="max-w-full rounded-xl p-4 mx-auto bg-rose-500/10 backdrop-blur-xl border border-white/10 shadow-lg">
             <div className="flex items-center">
-              <AlertCircle size={14} className="text-rose-400 mr-2" />
-              <p className="text-sm text-rose-200">{error}</p>
+              <div className="w-6 h-6 rounded-full bg-rose-500/20 flex items-center justify-center mr-2">
+                <AlertCircle size={14} className="text-rose-400" />
+              </div>
+              <p className="text-sm text-white">{error}</p>
             </div>
           </div>
         )}
@@ -567,22 +585,20 @@ export default function RealtimeConversationHub({
       </div>
 
       {/* Giriş Alanı */}
-      <form onSubmit={handleSubmit} className="p-4 border-t border-sky-700/20 bg-slate-800/40 backdrop-blur-sm rounded-b-lg">
+      <form onSubmit={handleSubmit} className="p-4 border-t border-white/10 bg-black/40 backdrop-blur-xl rounded-b-xl">
         <div className="flex items-center gap-3">
           {/* Tarayıcı Web Speech API ses tanıma butonu */}
           <button
             type="button"
             onClick={toggleVoiceInput}
             className={cn(
-              "p-2.5 rounded-md transition-colors",
-              isListening
-                ? "bg-rose-600 hover:bg-rose-700 animate-pulse"
-                : "bg-slate-800/40 backdrop-blur-sm border border-sky-700/30 hover:bg-sky-900/30"
+              "ios-control w-10 h-10 flex items-center justify-center transition-all duration-300",
+              isListening && "bg-rose-500/20 border-rose-500/30 animate-pulse"
             )}
             title={isListening ? "Ses kaydını durdur" : "Tarayıcı ses tanıma"}
             disabled={!browserSupportsSpeechRecognition}
           >
-            {isListening ? <MicOff size={20} /> : <Mic size={20} />}
+            {isListening ? <MicOff size={18} className="text-rose-400" /> : <Mic size={18} className="text-white/80" />}
           </button>
 
           {/* WebSocket üzerinden ses tanıma butonu */}
@@ -590,21 +606,19 @@ export default function RealtimeConversationHub({
             type="button"
             onClick={handleVoiceButtonClick}
             className={cn(
-              "p-2.5 rounded-md transition-colors relative",
-              isRecording
-                ? "bg-violet-600 hover:bg-violet-700 animate-pulse"
-                : "bg-slate-800/40 backdrop-blur-sm border border-sky-700/30 hover:bg-sky-900/30"
+              "ios-control w-10 h-10 flex items-center justify-center transition-all duration-300 relative overflow-hidden",
+              isRecording && "bg-purple-500/20 border-purple-500/30 animate-pulse"
             )}
             title={isRecording ? "Ses kaydını durdur" : `Ses kaydı (5 saniye)`}
             disabled={!connected}
           >
-            <Mic size={20} />
+            <Mic size={18} className={isRecording ? "text-purple-400" : "text-white/80"} />
 
             {/* Kayıt ilerleme göstergesi */}
             {isRecording && (
-              <div className="absolute inset-0 rounded-md overflow-hidden">
+              <div className="absolute inset-0 rounded-full overflow-hidden">
                 <div
-                  className="absolute bottom-0 left-0 right-0 bg-violet-400/30"
+                  className="absolute bottom-0 left-0 right-0 bg-purple-400/30"
                   style={{ height: `${recordingProgress}%` }}
                 ></div>
               </div>
@@ -617,7 +631,7 @@ export default function RealtimeConversationHub({
               value={input}
               onChange={(e) => setInput(e.target.value)}
               placeholder="Mesajınızı yazın..."
-              className="w-full bg-slate-800/40 backdrop-blur-sm border border-sky-700/30 rounded-md px-4 py-3 text-white placeholder:text-slate-400 focus:outline-none focus:ring-1 focus:ring-sky-500/50 transition-all"
+              className="w-full bg-white/5 backdrop-blur-xl border border-white/10 rounded-xl px-4 py-3 text-white placeholder:text-white/40 focus:outline-none focus:ring-1 focus:ring-white/20 transition-all"
               ref={inputRef}
               disabled={!connected}
             />
@@ -626,9 +640,9 @@ export default function RealtimeConversationHub({
             {isListening && (
               <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
                 <div className="flex space-x-1">
-                  <div className="w-1 h-3 bg-sky-400 animate-pulse rounded-full"></div>
-                  <div className="w-1 h-5 bg-sky-400 animate-pulse rounded-full"></div>
-                  <div className="w-1 h-2 bg-sky-400 animate-pulse rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-blue-400 animate-pulse rounded-full"></div>
+                  <div className="w-1.5 h-1.5 bg-blue-400 animate-pulse rounded-full delay-75"></div>
+                  <div className="w-1.5 h-1.5 bg-blue-400 animate-pulse rounded-full delay-150"></div>
                 </div>
               </div>
             )}
@@ -638,20 +652,20 @@ export default function RealtimeConversationHub({
             type="submit"
             disabled={!input.trim() || !connected}
             className={cn(
-              "p-3 rounded-md transition-colors",
+              "ios-control w-10 h-10 flex items-center justify-center transition-all duration-300",
               input.trim() && connected
-                ? "bg-sky-600 hover:bg-sky-700"
-                : "bg-slate-700/40 opacity-50 cursor-not-allowed"
+                ? "bg-blue-500/20 border-blue-500/30"
+                : "opacity-50 cursor-not-allowed"
             )}
             title="Gönder"
           >
-            <Send size={20} />
+            <Send size={18} className={input.trim() && connected ? "text-blue-400" : "text-white/40"} />
           </button>
         </div>
 
         {/* Bağlantı durumu mesajı */}
         {!connected && (
-          <div className="mt-2 text-xs text-center text-amber-400">
+          <div className="mt-3 text-xs text-center text-white/70 bg-amber-500/10 py-2 px-3 rounded-xl border border-white/10">
             {connecting
               ? "Sunucuya bağlanılıyor, lütfen bekleyin..."
               : "Sunucu bağlantısı kesildi. Yeniden bağlanmak için butona tıklayın."}
