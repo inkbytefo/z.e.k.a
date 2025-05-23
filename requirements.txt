@@ -1,0 +1,56 @@
+# ZEKA - Kişiselleştirilmiş Çoklu Ajanlı Yapay Zeka Asistanı
+# Gerekli Kütüphaneler - Python 3.13 Uyumlu Sürüm
+
+# Temel kütüphaneler
+python-dotenv>=1.0.0
+pydantic>=2.0.0
+email-validator>=2.0.0  # Pydantic email doğrulama için gerekli
+typing-extensions>=4.0.0
+aiofiles>=23.2.0  # Asenkron dosya işlemleri
+colorama>=0.4.6  # Renkli konsol çıktısı
+tqdm>=4.66.0  # İlerleme çubuğu
+loguru>=0.7.0  # Gelişmiş loglama
+
+# LLM entegrasyonları
+openai>=1.0.0
+python-open-router>=0.2.0  # OpenRouter API istemcisi
+
+# Web entegrasyonu
+fastapi>=0.100.0  # Python 3.13 ile uyumlu sürüm
+uvicorn>=0.23.0
+starlette>=0.27.0
+httpx>=0.24.0  # Asenkron HTTP istemcisi
+requests>=2.31.0  # API istekleri için
+aiohttp>=3.8.0  # Asenkron HTTP istekleri için
+
+# Güvenlik ve şifreleme
+cryptography>=41.0.0  # Şifreleme ve güvenlik için
+pyjwt>=2.6.0  # JWT token işleme için
+passlib>=1.7.4  # Şifre yönetimi
+bcrypt>=4.0.1  # Şifre hashleme
+
+# Ses entegrasyonları ve işleme
+sounddevice>=0.4.6
+soundfile>=0.12.1
+pyaudio>=0.2.13
+webrtcvad>=2.0.10  # Ses aktivitesi algılama
+
+# Masaüstü Denetleyicisi
+psutil>=5.9.5  # Sistem bilgisi ve süreç yönetimi
+pillow>=10.0.0  # Görüntü işleme
+
+# WebSocket ve JSON
+websockets>=11.0.0  # WebSocket bağlantıları için
+jsonschema>=4.0.0  # JSON şema doğrulama için
+
+# Not: Diğer paketler gerektiğinde ayrıca kurulabilir
+# Aşağıdaki paketler Python 3.13 ile uyumlu olmayabilir veya derleme sorunları yaşayabilir:
+# - chromadb, sentence-transformers, hnswlib, annoy (vektör veritabanı)
+# - langchain, langchain-openai, langchain-community (LLM entegrasyonları)
+# - numpy, pandas, scipy (veri işleme)
+# - autogen, crewai (ajan mimarisi)
+# - redis (rate limiting)
+# - faster-whisper, elevenlabs, librosa (gelişmiş ses işleme)
+# - pyautogui, pytesseract, pywinauto (masaüstü otomasyonu)
+# - selenium, playwright, webdriver-manager (tarayıcı otomasyonu)
+# - pytest, sphinx, mkdocs (test ve dokümantasyon)

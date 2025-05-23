@@ -1,0 +1,91 @@
+{
+  "mcpServers": {
+    "memory": {
+      "command": "node",
+      "args": [
+        "C:\\Users\\tpoyr\\AppData\\Roaming\\npm\\node_modules\\@modelcontextprotocol\\server-memory\\dist\\index.js"
+      ],
+      "env": {
+        "MEMORY_FILE_PATH": "C:\\Users\\tpoyr\\OneDrive\\Belgeler\\Cline\\MCP\\memory-server\\memory.json"
+      },
+      "disabled": false,
+      "autoApprove": [
+        "create_entities",
+        "create_relations",
+        "add_observations",
+        "delete_entities",
+        "delete_observations",
+        "delete_relations",
+        "read_graph",
+        "search_nodes",
+        "open_nodes"
+      ]
+    },
+    "Figma AI Bridge": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "figma-developer-mcp",
+        "--stdio"
+      ],
+      "env": {
+        "FIGMA_API_KEY": ""
+      },
+      "fromGalleryId": "GLips.Figma-Context-MCP"
+    },
+    "context7": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "@playwright/mcp@latest"
+      ]
+    },
+    "puppeteer": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-puppeteer"
+      ]
+    },
+    "ddg-search": {
+      "command": "uvx",
+      "args": [
+        "duckduckgo-mcp-server"
+      ]
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "desktop-commander": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@wonderwhy-er/desktop-commander"
+      ]
+    },
+    "taskmanager": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@kazuph/mcp-taskmanager"
+      ],
+      "fromGalleryId": "kazuph.mcp-taskmanager"
+    },
+    "blender": {
+      "command": "uvx",
+      "args": [
+        "blender-mcp"
+      ]
+    }
+  }
+}
