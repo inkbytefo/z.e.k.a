@@ -143,6 +143,10 @@ body {
   border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
+.widget-header-drag-handle {
+  @apply flex items-center cursor-move;
+}
+
 .widget-content {
   @apply p-4 overflow-auto;
 }
