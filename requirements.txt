@@ -12,8 +12,7 @@ tqdm>=4.66.0  # İlerleme çubuğu
 loguru>=0.7.0  # Gelişmiş loglama
 
 # LLM entegrasyonları
-openai>=1.0.0
-python-open-router>=0.2.0  # OpenRouter API istemcisi
+openai>=1.50.0  # OpenAI API istemcisi
 
 # Web entegrasyonu
 fastapi>=0.100.0  # Python 3.13 ile uyumlu sürüm

@@ -8,7 +8,7 @@ from typing import Dict, List, Any, Optional, AsyncGenerator
 from datetime import datetime
 import logging
 
-from core.openrouter_client import OpenRouterClient
+
 from agents.conversation_agent import ConversationAgent
 from core.logging_manager import get_logger
 
@@ -159,9 +159,9 @@ class ConversationAgentStreaming(ConversationAgent):
         system_prompt = self._get_system_prompt(language, communication_style)
 
         try:
-            # OpenRouter istemcisi mi kontrol et
+            # OpenAI istemcisi mi kontrol et
             if hasattr(self.language_model, "generate_stream"):
-                # OpenRouter API ile streaming yanıt oluştur (daha düşük sıcaklık değeri)
+                # OpenAI API ile streaming yanıt oluştur (daha düşük sıcaklık değeri)
                 async for chunk in self.language_model.generate_stream(
                     prompt=description,
                     system_prompt=system_prompt,

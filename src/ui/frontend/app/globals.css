@@ -3,64 +3,136 @@
 @tailwind utilities;
 
 :root {
+  /* Legacy Shadcn Variables (kept for compatibility) */
   --background: 220 20% 10%;
   --foreground: 210 40% 98%;
-
   --card: 220 25% 15%;
   --card-foreground: 210 40% 98%;
-
   --popover: 220 25% 15%;
   --popover-foreground: 210 40% 98%;
-
   --primary: 210 100% 50%;
   --primary-foreground: 210 40% 98%;
-
   --secondary: 210 50% 30%;
   --secondary-foreground: 210 40% 98%;
-
   --muted: 220 20% 20%;
   --muted-foreground: 215 20% 65%;
-
   --accent: 199 100% 50%;
   --accent-foreground: 210 40% 98%;
-
   --destructive: 0 62.8% 30.6%;
   --destructive-foreground: 210 40% 98%;
-
   --border: 210 50% 30%;
   --input: 220 20% 20%;
   --ring: 210 100% 50%;
-
   --radius: 0.5rem;
+
+  /* iOS 18 Design System */
+  /* Background Colors */
+  --ios-background-primary: rgba(0, 0, 0, 0.95);
+  --ios-background-secondary: rgba(28, 28, 30, 0.9);
+  --ios-background-tertiary: rgba(44, 44, 46, 0.85);
+
+  /* Surface Colors */
+  --ios-surface-primary: rgba(28, 28, 30, 0.8);
+  --ios-surface-secondary: rgba(44, 44, 46, 0.7);
+  --ios-surface-tertiary: rgba(58, 58, 60, 0.6);
+
+  /* Accent Colors */
+  --ios-accent-blue: rgb(0, 122, 255);
+  --ios-accent-blue-secondary: rgba(0, 122, 255, 0.8);
+  --ios-accent-green: rgb(52, 199, 89);
+  --ios-accent-orange: rgb(255, 149, 0);
+  --ios-accent-red: rgb(255, 59, 48);
+  --ios-accent-purple: rgb(175, 82, 222);
+
+  /* Text Colors */
+  --ios-text-primary: rgba(255, 255, 255, 0.95);
+  --ios-text-secondary: rgba(255, 255, 255, 0.7);
+  --ios-text-tertiary: rgba(255, 255, 255, 0.5);
+  --ios-text-quaternary: rgba(255, 255, 255, 0.3);
+
+  /* Glassmorphism */
+  --glass-background: rgba(255, 255, 255, 0.1);
+  --glass-background-strong: rgba(255, 255, 255, 0.15);
+  --glass-border: rgba(255, 255, 255, 0.2);
+  --glass-border-strong: rgba(255, 255, 255, 0.3);
+  --glass-blur: blur(20px);
+  --glass-blur-strong: blur(40px);
+
+  /* Shadows */
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.15);
+  --shadow-lg: 0 8px 16px rgba(0, 0, 0, 0.2);
+  --shadow-xl: 0 16px 32px rgba(0, 0, 0, 0.25);
+  --shadow-2xl: 0 24px 48px rgba(0, 0, 0, 0.3);
+
+  /* Border Radius */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-2xl: 24px;
+  --radius-full: 9999px;
+
+  /* Spacing Scale */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-2xl: 24px;
+  --spacing-3xl: 32px;
+
+  /* Animation Durations */
+  --duration-fast: 0.15s;
+  --duration-normal: 0.3s;
+  --duration-slow: 0.5s;
+
+  /* Animation Easings */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+  --ease-spring: cubic-bezier(0.175, 0.885, 0.32, 1.275);
 }
 
 * {
   @apply border-border;
 }
 
-body {
-  @apply bg-background text-foreground;
-  font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans",
-    "Helvetica Neue", sans-serif;
+html {
+  scroll-behavior: smooth;
 }
 
-/* Custom scrollbar */
+body {
+  @apply bg-background text-foreground;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", system-ui, sans-serif;
+  background: var(--ios-background-primary);
+  color: var(--ios-text-primary);
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Optimize scrollbars for iOS-like appearance */
 ::-webkit-scrollbar {
   width: 6px;
+  height: 6px;
 }
 
 ::-webkit-scrollbar-track {
-  background: rgba(0, 0, 0, 0.2);
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(0, 120, 215, 0.4);
+  background: rgba(255, 255, 255, 0.2);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(0, 120, 215, 0.6);
+  background: rgba(255, 255, 255, 0.3);
 }
+
+
 
 /* Glowing effect */
 .glow {
@@ -185,8 +257,201 @@ body {
   @apply p-1.5 rounded-md text-white/70 hover:text-white hover:bg-white/10 transition-colors;
 }
 
+/* iOS 18 Utility Classes */
+@layer utilities {
+  /* Glassmorphism Effects */
+  .glass {
+    background: var(--glass-background);
+    backdrop-filter: var(--glass-blur);
+    border: 1px solid var(--glass-border);
+  }
+
+  .glass-strong {
+    background: var(--glass-background-strong);
+    backdrop-filter: var(--glass-blur-strong);
+    border: 1px solid var(--glass-border-strong);
+  }
+
+  /* iOS Surface Styles */
+  .ios-surface {
+    background: var(--ios-surface-primary);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+  }
+
+  .ios-surface-secondary {
+    background: var(--ios-surface-secondary);
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-sm);
+  }
+
+  /* iOS Text Styles */
+  .ios-text-primary { color: var(--ios-text-primary); }
+  .ios-text-secondary { color: var(--ios-text-secondary); }
+  .ios-text-tertiary { color: var(--ios-text-tertiary); }
+
+  /* iOS Animations */
+  .ios-transition {
+    transition: all var(--duration-normal) var(--ease-out);
+  }
+
+  .ios-transition-fast {
+    transition: all var(--duration-fast) var(--ease-out);
+  }
+
+  .ios-hover-scale:hover {
+    transform: scale(1.02);
+  }
+
+  .ios-hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+  }
+}
+
+/* iOS 18 Layout System */
+.ios-layout {
+  display: grid;
+  grid-template-columns: 280px 1fr 320px;
+  grid-template-rows: 60px 1fr;
+  grid-template-areas:
+    "topbar topbar topbar"
+    "sidebar main control";
+  height: 100vh;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+}
+
+.ios-topbar {
+  grid-area: topbar;
+  background: var(--glass-background);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 var(--spacing-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.ios-sidebar {
+  grid-area: sidebar;
+  background: var(--glass-background);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  overflow-y: auto;
+}
+
+.ios-main {
+  grid-area: main;
+  background: var(--glass-background);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  display: flex;
+  flex-direction: column;
+}
+
+.ios-control {
+  grid-area: control;
+  background: var(--glass-background);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-xl);
+  padding: var(--spacing-xl);
+  box-shadow: var(--shadow-md);
+  overflow-y: auto;
+}
+
+/* iOS 18 Control Center Grid */
+.control-center-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: var(--spacing-md);
+  width: 100%;
+}
+
+.control-center-item {
+  background: var(--ios-surface-secondary);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-lg);
+  transition: all var(--duration-normal) var(--ease-out);
+  cursor: pointer;
+  border: 1px solid var(--glass-border);
+}
+
+.control-center-item:hover {
+  background: var(--ios-surface-tertiary);
+  transform: scale(1.02);
+  box-shadow: var(--shadow-lg);
+}
+
+.control-center-item.large {
+  grid-column: span 2;
+}
+
+/* iOS 18 Status List */
+.status-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.status-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--spacing-md);
+  background: var(--ios-surface-secondary);
+  border-radius: var(--radius-md);
+  transition: all var(--duration-fast) var(--ease-out);
+  border: 1px solid var(--glass-border);
+}
+
+.status-item:hover {
+  background: var(--ios-surface-tertiary);
+}
+
 /* Responsive Layout Adjustments */
+@media (max-width: 1200px) {
+  .ios-layout {
+    grid-template-columns: 260px 1fr 280px;
+  }
+}
+
+@media (max-width: 1024px) {
+  .ios-layout {
+    grid-template-columns: 1fr 280px;
+    grid-template-areas:
+      "topbar topbar"
+      "main control";
+  }
+
+  .ios-sidebar {
+    display: none;
+  }
+}
+
 @media (max-width: 768px) {
+  .ios-layout {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "topbar"
+      "main";
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .ios-control {
+    display: none;
+  }
+
   .widget {
     width: 100% !important;
     left: 0 !important;

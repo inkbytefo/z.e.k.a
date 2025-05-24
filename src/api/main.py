@@ -22,15 +22,11 @@ if parent_dir not in sys.path:
     sys.path.insert(0, parent_dir)
 
 # Modülleri içe aktar
-from core.openrouter_client import OpenRouterClient
 from core.vector_database import VectorDatabase
 from core.user_profile import UserProfile
-from core.auth.user_auth import UserAuth
-from core.weather_service import WeatherService
-from core.behavior_tracker import UserBehaviorTracker
-from core.proactive_assistant import ProactiveAssistant
+from core.provider_manager import ProviderManager
 from agents.conversation_agent import ConversationAgent
-from config import OPENROUTER_API_KEY, PROFILES_PATH, USERS_PATH, OPENWEATHERMAP_API_KEY
+from config import PROFILES_PATH
 
 # Rotaları içe aktar
 from .auth_routes import router as auth_router
@@ -107,6 +103,16 @@ class ModelListResponse(BaseModel):
 class SetModelRequest(BaseModel):
     model: str
 
+class AddProviderRequest(BaseModel):
+    provider_id: str
+    name: str
+    base_url: str
+    api_key: Optional[str] = None
+    description: str = ""
+    models: List[str] = []
+    auth_type: str = "bearer"
+    metadata: Optional[Dict[str, Any]] = None
+
 class SetModelResponse(BaseModel):
     success: bool
     model: str
@@ -148,12 +154,13 @@ class SetUserModelPreferenceRequest(BaseModel):
     model_type: str  # ai_model, embedding_model, embedding_function, voice_model
     model_value: str
 
-# Sohbet ajanı
+# Global değişkenler
 conversation_agent = None
+provider_manager = None
 
 @app.on_event("startup")
 async def startup_event():
-    global conversation_agent
+    global conversation_agent, provider_manager
 
     # Varsayılan kullanıcı profili
     user_id = "default_user"
@@ -176,11 +183,39 @@ async def startup_event():
         embedding_model = os.getenv("EMBEDDING_MODEL", "all-MiniLM-L6-v2")
         ai_model = "anthropic/claude-3-haiku"
 
-    # OpenRouter istemcisini başlat
-    openrouter_client = OpenRouterClient(
-        api_key=OPENROUTER_API_KEY,
-        default_model=ai_model
+    # Provider manager'ı başlat
+    provider_manager = ProviderManager()
+
+    # Varsayılan sağlayıcıyı belirle (OpenAI varsa onu, yoksa ilk uygun olanı)
+    providers = provider_manager.list_providers()
+    default_provider_id = "openai"
+
+    if "openai" not in providers or not os.getenv("OPENAI_API_KEY"):
+        # OpenAI yoksa diğer sağlayıcıları kontrol et
+        for pid, pdata in providers.items():
+            if not pdata.get("requires_api_key", True):
+                default_provider_id = pid
+                break
+            elif os.getenv(pdata.get("env_key", f"{pid.upper()}_API_KEY")):
+                default_provider_id = pid
+                break
+
+    # AI istemcisini oluştur
+    openai_client = provider_manager.create_client(
+        default_provider_id,
+        ai_model if ai_model.startswith("gpt-") else None
     )
+
+    if not openai_client:
+        logging.error(f"AI istemcisi oluşturulamadı. Sağlayıcı: {default_provider_id}")
+        # Fallback olarak demo client oluştur
+        from core.openai_client import OpenAIClient
+        openai_client = OpenAIClient(
+            provider_name="demo",
+            api_key="demo-key",
+            base_url="http://localhost:8080/v1",
+            default_model="gpt-3.5-turbo"
+        )
 
     # Vektör veritabanını başlat
     vector_db = VectorDatabase.get_instance(
@@ -190,7 +225,7 @@ async def startup_event():
 
     # Sohbet ajanını başlat
     conversation_agent = ConversationAgent(
-        language_model=openrouter_client,
+        language_model=openai_client,
         default_language="tr",
         default_style="friendly"
     )
@@ -296,25 +331,27 @@ async def get_conversation_history(limit: int = 10, user_id: str = "default_user
 @app.get("/api/models", response_model=ModelListResponse)
 async def get_models():
     """Kullanılabilir modelleri listeler ve mevcut modeli döndürür"""
-    if not conversation_agent or not conversation_agent.language_model:
-        raise HTTPException(status_code=503, detail="Dil modeli henüz başlatılmadı")
+    if not provider_manager:
+        raise HTTPException(status_code=503, detail="Sağlayıcı yöneticisi henüz başlatılmadı")
 
     try:
-        # OpenRouter istemcisinden modelleri al
-        openrouter_client = conversation_agent.language_model
-        models_data = await openrouter_client.list_available_models()
-
-        # Modelleri dönüştür
+        # Tüm sağlayıcılardan modelleri topla
         models = []
-        for model in models_data:
-            models.append({
-                "id": model.get("id", ""),
-                "name": model.get("name", ""),
-                "provider": model.get("provider", "")
-            })
+        providers = provider_manager.list_providers()
+
+        for provider_id, provider_data in providers.items():
+            provider_models = provider_data.get("models", [])
+            for model_id in provider_models:
+                models.append({
+                    "id": f"{provider_id}/{model_id}" if provider_id != "openai" else model_id,
+                    "name": model_id,
+                    "provider": provider_data.get("name", provider_id)
+                })
 
         # Mevcut modeli al
-        current_model = openrouter_client.default_model
+        current_model = "gpt-4o-mini"  # Varsayılan
+        if conversation_agent and conversation_agent.language_model:
+            current_model = conversation_agent.language_model.default_model
 
         return {"models": models, "current_model": current_model}
     except Exception as e:
@@ -328,12 +365,12 @@ async def set_model(request: SetModelRequest, user_id: str = "default_user"):
         raise HTTPException(status_code=503, detail="Dil modeli henüz başlatılmadı")
 
     try:
-        # OpenRouter istemcisini al
-        openrouter_client = conversation_agent.language_model
+        # OpenAI istemcisini al
+        openai_client = conversation_agent.language_model
 
         # Modeli değiştir
-        old_model = openrouter_client.default_model
-        openrouter_client.default_model = request.model
+        old_model = openai_client.default_model
+        openai_client.default_model = request.model
 
         # Kullanıcı profilini güncelle
         try:
@@ -354,7 +391,7 @@ async def set_model(request: SetModelRequest, user_id: str = "default_user"):
         logging.error(f"Model değiştirilirken hata: {str(e)}")
         return {
             "success": False,
-            "model": openrouter_client.default_model,
+            "model": conversation_agent.language_model.default_model if conversation_agent and conversation_agent.language_model else "gpt-4o-mini",
             "message": f"Model değiştirilemedi: {str(e)}"
         }
 
@@ -544,6 +581,135 @@ async def set_user_model_preference(request: SetUserModelPreferenceRequest):
             "message": f"Model tercihi ayarlanamadı: {str(e)}"
         }
 
+
+# Provider yönetimi endpoint'leri
+
+@app.get("/api/providers")
+async def get_providers():
+    """Kullanılabilir AI sağlayıcılarını listeler"""
+    if not provider_manager:
+        raise HTTPException(status_code=503, detail="Sağlayıcı yöneticisi henüz başlatılmadı")
+
+    try:
+        providers = provider_manager.list_providers()
+        provider_list = []
+
+        for provider_id, provider_data in providers.items():
+            provider_list.append({
+                "id": provider_id,
+                "name": provider_data.get("name", provider_id),
+                "description": provider_data.get("description", ""),
+                "base_url": provider_data.get("base_url", ""),
+                "auth_type": provider_data.get("auth_type", "bearer"),
+                "requires_api_key": provider_data.get("requires_api_key", True),
+                "models": provider_data.get("models", []),
+                "supports_streaming": provider_data.get("supports_streaming", True),
+                "enabled": provider_data.get("enabled", True),
+                "custom": provider_data.get("custom", False)
+            })
+
+        return {"providers": provider_list}
+    except Exception as e:
+        logging.error(f"Sağlayıcı listesi alınırken hata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Sağlayıcı listesi alınamadı: {str(e)}")
+
+
+@app.post("/api/providers/add")
+async def add_provider(request: AddProviderRequest):
+    """Yeni AI sağlayıcısı ekler"""
+    if not provider_manager:
+        raise HTTPException(status_code=503, detail="Sağlayıcı yöneticisi henüz başlatılmadı")
+
+    try:
+        success = provider_manager.add_provider(
+            provider_id=request.provider_id,
+            name=request.name,
+            base_url=request.base_url,
+            api_key=request.api_key,
+            description=request.description,
+            models=request.models,
+            auth_type=request.auth_type,
+            metadata=request.metadata
+        )
+
+        if success:
+            return {"success": True, "message": f"Sağlayıcı başarıyla eklendi: {request.name}"}
+        else:
+            raise HTTPException(status_code=400, detail="Sağlayıcı eklenemedi")
+
+    except Exception as e:
+        logging.error(f"Sağlayıcı eklenirken hata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Sağlayıcı eklenemedi: {str(e)}")
+
+
+@app.delete("/api/providers/{provider_id}")
+async def remove_provider(provider_id: str):
+    """AI sağlayıcısını kaldırır"""
+    if not provider_manager:
+        raise HTTPException(status_code=503, detail="Sağlayıcı yöneticisi henüz başlatılmadı")
+
+    try:
+        success = provider_manager.remove_provider(provider_id)
+
+        if success:
+            return {"success": True, "message": f"Sağlayıcı başarıyla kaldırıldı: {provider_id}"}
+        else:
+            raise HTTPException(status_code=404, detail="Sağlayıcı bulunamadı")
+
+    except Exception as e:
+        logging.error(f"Sağlayıcı kaldırılırken hata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Sağlayıcı kaldırılamadı: {str(e)}")
+
+
+@app.post("/api/providers/{provider_id}/discover-models")
+async def discover_provider_models(provider_id: str):
+    """Sağlayıcının modellerini keşfeder"""
+    if not provider_manager:
+        raise HTTPException(status_code=503, detail="Sağlayıcı yöneticisi henüz başlatılmadı")
+
+    try:
+        models = await provider_manager.discover_models(provider_id)
+        return {"success": True, "models": models, "count": len(models)}
+
+    except Exception as e:
+        logging.error(f"Model keşfi sırasında hata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Model keşfi başarısız: {str(e)}")
+
+
+@app.get("/api/providers/{provider_id}")
+async def get_provider_details(provider_id: str):
+    """Belirli bir sağlayıcının detaylarını getirir"""
+    if not provider_manager:
+        raise HTTPException(status_code=503, detail="Sağlayıcı yöneticisi henüz başlatılmadı")
+
+    try:
+        provider = provider_manager.get_provider(provider_id)
+        if not provider:
+            raise HTTPException(status_code=404, detail="Sağlayıcı bulunamadı")
+
+        return {
+            "id": provider_id,
+            "name": provider.get("name", provider_id),
+            "description": provider.get("description", ""),
+            "base_url": provider.get("base_url", ""),
+            "auth_type": provider.get("auth_type", "bearer"),
+            "requires_api_key": provider.get("requires_api_key", True),
+            "models": provider.get("models", []),
+            "supports_streaming": provider.get("supports_streaming", True),
+            "enabled": provider.get("enabled", True),
+            "custom": provider.get("custom", False),
+            "created_at": provider.get("created_at"),
+            "updated_at": provider.get("updated_at"),
+            "last_model_discovery": provider.get("last_model_discovery")
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Sağlayıcı detayları alınırken hata: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Sağlayıcı detayları alınamadı: {str(e)}")
+
+
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=8001)  # Port 8001'e güncellendi

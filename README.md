@@ -2,6 +2,25 @@
 
 ZEKA, kullanıcıların günlük görevlerini yönetmelerine yardımcı olan, kişiselleştirilmiş bir yapay zeka asistanıdır. Sesli komutları anlayabilir, metinleri okuyabilir, takvim yönetimi yapabilir, e-posta gönderebilir ve kod yazma konusunda yardımcı olabilir.
 
+## 🎨 Yeni iOS 18 Tarzı Tasarım (v2.1.0)
+
+ZEKA artık tamamen yenilenen iOS 18 tarzı arayüzü ile daha modern ve kullanıcı dostu bir deneyim sunuyor:
+
+### ✨ Tasarım Özellikleri
+- **iOS 18 Estetiği**: Glassmorphism efektleri, yumuşak köşeler ve subtle animasyonlar
+- **Esnek Layout**: 3-sütunlu responsive tasarım (Sistem Durumu | Konuşma | Denetim Merkezi)
+- **Denetim Merkezi**: iOS Control Center benzeri widget sistemi
+- **Minimalist Voice Control**: TopBar'da Dynamic Island tarzı ses kontrolü
+- **Şeffaf Chat Arka Planı**: Glassmorphism efektleri ile modern görünüm
+- **Enhanced Background**: Daha görünür 3D arka plan animasyonları
+- **Performance Optimized**: Lazy loading, React.memo ve code splitting
+
+### 🏗️ Yeni Mimari
+- **TopBar**: Navigation + minimized voice control
+- **SystemStatusPanel**: iOS Settings tarzı real-time sistem durumu
+- **ConversationPanel**: Messages app tarzı chat interface
+- **ControlCenterPanel**: iOS Control Center tarzı widget grid
+
 ## Özellikler
 
 - **Çoklu Ajan Mimarisi**: Farklı görevler için uzmanlaşmış ajanlar arasında işbirliği.

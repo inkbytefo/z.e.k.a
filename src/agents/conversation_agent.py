@@ -10,7 +10,7 @@ import logging
 from core.agent_base import Agent
 from core.communication import MessageType, TaskStatus, TaskPriority
 from core.memory_manager import MemoryManager
-from core.openrouter_client import OpenRouterClient
+
 from core.exceptions import AgentError, ModelError
 
 class ConversationAgent(Agent):
@@ -103,7 +103,7 @@ class ConversationAgent(Agent):
         """Dil modelini ayarlar.
 
         Args:
-            model: Dil modeli nesnesi (OpenRouterClient veya uyumlu bir model)
+            model: Dil modeli nesnesi (OpenAIClient veya uyumlu bir model)
         """
         self.language_model = model
         self.is_initialized = True
@@ -350,9 +350,9 @@ class ConversationAgent(Agent):
         system_prompt = self._get_system_prompt(language, communication_style)
 
         try:
-            # OpenRouter istemcisi mi kontrol et
+            # OpenAI istemcisi mi kontrol et
             if hasattr(self.language_model, "generate_text"):
-                # OpenRouter API ile yanıt oluştur (zaman aşımı süresini artırarak)
+                # OpenAI API ile yanıt oluştur (zaman aşımı süresini artırarak)
                 try:
                     response_data = await asyncio.wait_for(
                         self.language_model.generate_text(
@@ -373,7 +373,7 @@ class ConversationAgent(Agent):
                     }
 
                 # Yanıtı çıkar
-                response_text = response_data.get("content", "")
+                response_text = response_data.get("response", "")
 
                 # Kullanım bilgilerini ekle
                 usage = response_data.get("usage", {})
@@ -456,9 +456,9 @@ class ConversationAgent(Agent):
 Çevirinin doğru ve akıcı olmasına dikkat et. Sadece çeviriyi döndür, ekstra açıklama yapma."""
 
         try:
-            # OpenRouter istemcisi mi kontrol et
+            # OpenAI istemcisi mi kontrol et
             if hasattr(self.language_model, "generate_text"):
-                # OpenRouter API ile çeviri yap
+                # OpenAI API ile çeviri yap
                 response_data = await self.language_model.generate_text(
                     prompt=text,
                     system_prompt=system_prompt,
@@ -467,7 +467,7 @@ class ConversationAgent(Agent):
                 )
 
                 # Çeviriyi çıkar
-                translation = response_data.get("content", "")
+                translation = response_data.get("response", "")
 
                 return {
                     "success": True,
@@ -650,10 +650,10 @@ Yanıtlarını tek bir kez ver, aynı bilgiyi tekrarlama. Kullanıcının sorusu
             if memory_context:
                 system_prompt = f"{system_prompt}\n\n{memory_context}"
 
-        # OpenRouter istemcisi mi kontrol et
+        # OpenAI istemcisi mi kontrol et
         if hasattr(self.language_model, "generate_text"):
             try:
-                # OpenRouter API ile yanıt oluştur (zaman aşımı süresini artırarak)
+                # OpenAI API ile yanıt oluştur (zaman aşımı süresini artırarak)
                 try:
                     response_data = await asyncio.wait_for(
                         self.language_model.generate_text(
@@ -674,7 +674,7 @@ Yanıtlarını tek bir kez ver, aynı bilgiyi tekrarlama. Kullanıcının sorusu
                     }
 
                 # Yanıtı çıkar
-                response_text = response_data.get("content", "")
+                response_text = response_data.get("response", "")
 
                 # Kullanım bilgilerini ekle
                 usage = response_data.get("usage", {})
@@ -690,7 +690,7 @@ Yanıtlarını tek bir kez ver, aynı bilgiyi tekrarlama. Kullanıcının sorusu
                     "usage": usage
                 }
             except Exception as e:
-                self.logger.error(f"OpenRouter API yanıt oluşturma hatası: {str(e)}", exc_info=True)
+                self.logger.error(f"OpenAI API yanıt oluşturma hatası: {str(e)}", exc_info=True)
                 # Yedek yanıt mekanizmasına geç
 
         # Alternatif model veya yedek mekanizma

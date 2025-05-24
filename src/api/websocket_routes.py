@@ -1,17 +1,16 @@
+import os
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, status, HTTPException
-from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from typing import Dict, Optional, AsyncGenerator, List, Any
+from typing import Dict, Optional
 import logging
 import json
 from datetime import datetime
 import base64
-import asyncio
 
-from core.openrouter_client import OpenRouterClient
+from core.openai_client import OpenAIClient
 from core.voice_processor import VoiceProcessor
 from agents.conversation_agent_streaming import ConversationAgentStreaming
-from config import AGENT_CONFIG, OPENROUTER_API_KEY, ELEVENLABS_API_KEY
+from config import AGENT_CONFIG, ELEVENLABS_API_KEY
 
 # Router oluştur
 router = APIRouter(
@@ -75,15 +74,15 @@ def initialize_conversation_agent():
 
     if conversation_agent is None:
         try:
-            # OpenRouter istemcisini başlat
-            openrouter_client = OpenRouterClient(
-                api_key=OPENROUTER_API_KEY,
-                default_model="anthropic/claude-3-haiku"
+            # OpenAI istemcisini başlat
+            openai_client = OpenAIClient(
+                api_key=os.getenv("OPENAI_API_KEY"),
+                default_model="gpt-4o-mini"
             )
 
             # Sohbet ajanını başlat
             conversation_agent = ConversationAgentStreaming(
-                language_model=openrouter_client,
+                language_model=openai_client,
                 default_language="tr",
                 default_style="friendly"
             )

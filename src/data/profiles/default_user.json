@@ -7,7 +7,7 @@
   "communication_style": "neutral",
   "learned_behaviors": {},
   "model_preferences": {
-    "ai_model": "thudm/glm-4-32b:free",
+    "ai_model": "gpt-4o-mini",
     "embedding_model": "all-mpnet-base-v2",
     "embedding_function": "huggingface",
     "voice_model": null

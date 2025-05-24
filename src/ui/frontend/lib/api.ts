@@ -176,6 +176,7 @@ export interface APIKeyResponse {
 
 export interface APIKeyListItem {
   service_name: string;
+  masked_key: string;
   metadata: Record<string, any>;
   created_at: string;
   updated_at: string;
@@ -201,8 +202,51 @@ export interface APIProviderListResponse {
   providers: APIProviderInfo[];
 }
 
+// Provider yönetimi türleri
+export interface ProviderInfo {
+  id: string;
+  name: string;
+  description: string;
+  base_url: string;
+  auth_type: string;
+  requires_api_key: boolean;
+  models: string[];
+  supports_streaming: boolean;
+  enabled: boolean;
+  custom: boolean;
+  created_at?: string;
+  updated_at?: string;
+  last_model_discovery?: string;
+}
+
+export interface ProviderListResponse {
+  providers: ProviderInfo[];
+}
+
+export interface AddProviderRequest {
+  provider_id: string;
+  name: string;
+  base_url: string;
+  api_key?: string;
+  description?: string;
+  models?: string[];
+  auth_type?: string;
+  metadata?: Record<string, any>;
+}
+
+export interface ProviderResponse {
+  success: boolean;
+  message?: string;
+}
+
+export interface ModelDiscoveryResponse {
+  success: boolean;
+  models: string[];
+  count: number;
+}
+
 // Backend API URL'sini al
-const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8000';
+const API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL || 'http://localhost:8001';
 
 /**
  * Yeni bir sohbet mesajı gönderir
@@ -623,6 +667,143 @@ export async function deleteAPIKey(serviceName: string): Promise<APIKeyResponse>
   }
 }
 
+// Provider yönetimi fonksiyonları
+
+/**
+ * Kullanılabilir AI sağlayıcılarını listeler
+ *
+ * @returns Sağlayıcı listesi
+ */
+export async function getProviders(): Promise<ProviderListResponse> {
+  try {
+    const response = await fetch(`${API_URL}/api/providers`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'API hatası');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Sağlayıcı listesi getirme hatası:', error);
+    throw error;
+  }
+}
+
+/**
+ * Yeni AI sağlayıcısı ekler
+ *
+ * @param providerData Sağlayıcı verileri
+ * @returns API yanıtı
+ */
+export async function addProvider(providerData: AddProviderRequest): Promise<ProviderResponse> {
+  try {
+    const response = await fetch(`${API_URL}/api/providers/add`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(providerData),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'API hatası');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Sağlayıcı ekleme hatası:', error);
+    throw error;
+  }
+}
+
+/**
+ * AI sağlayıcısını kaldırır
+ *
+ * @param providerId Sağlayıcı ID'si
+ * @returns API yanıtı
+ */
+export async function removeProvider(providerId: string): Promise<ProviderResponse> {
+  try {
+    const response = await fetch(`${API_URL}/api/providers/${providerId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'API hatası');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Sağlayıcı kaldırma hatası:', error);
+    throw error;
+  }
+}
+
+/**
+ * Sağlayıcının modellerini keşfeder
+ *
+ * @param providerId Sağlayıcı ID'si
+ * @returns Keşfedilen modeller
+ */
+export async function discoverProviderModels(providerId: string): Promise<ModelDiscoveryResponse> {
+  try {
+    const response = await fetch(`${API_URL}/api/providers/${providerId}/discover-models`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'API hatası');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Model keşfi hatası:', error);
+    throw error;
+  }
+}
+
+/**
+ * Belirli bir sağlayıcının detaylarını getirir
+ *
+ * @param providerId Sağlayıcı ID'si
+ * @returns Sağlayıcı detayları
+ */
+export async function getProviderDetails(providerId: string): Promise<ProviderInfo> {
+  try {
+    const response = await fetch(`${API_URL}/api/providers/${providerId}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.detail || 'API hatası');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('Sağlayıcı detayları getirme hatası:', error);
+    throw error;
+  }
+}
+
 /**
  * Kayıtlı API anahtarlarını listeler
  *
@@ -648,6 +829,46 @@ export async function listAPIKeys(): Promise<APIKeyListResponse> {
     throw error;
   }
 }
+
+/**
+ * Yeni bir API anahtarı ekler
+ *
+ * @param serviceName Servis adı
+ * @param apiKey API anahtarı
+ * @param metadata Ek metadata (opsiyonel)
+ * @returns API yanıtı
+ */
+export async function addAPIKey(
+  serviceName: string,
+  apiKey: string,
+  metadata?: Record<string, any>
+): Promise<APIKeyResponse> {
+  try {
+    const response = await fetch(`${API_URL}/api/api-keys/set`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        service_name: serviceName,
+        api_key: apiKey,
+        metadata: metadata || {}
+      }),
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.message || 'API anahtarı ekleme hatası');
+    }
+
+    return await response.json();
+  } catch (error) {
+    console.error('API anahtarı ekleme hatası:', error);
+    throw error;
+  }
+}
+
+
 
 /**
  * Desteklenen API sağlayıcılarını listeler

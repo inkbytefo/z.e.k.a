@@ -18,6 +18,7 @@ import { getCurrentWeather, getHourlyForecast, type WeatherResponse, type Foreca
 import WidgetContainer, { WidgetDefinition } from "./widget-container"
 import MCPServerManager from "./mcp-server-manager"
 import APIKeyManager from "./api-key-manager"
+import ProviderManager from "./provider-manager"
 
 export default function Widgets({ onModelChange }: { onModelChange?: (model: string) => void }) {
   const [weatherData, setWeatherData] = useState({
@@ -64,6 +65,25 @@ export default function Widgets({ onModelChange }: { onModelChange?: (model: str
           <ModelSelector onModelChange={onModelChange} className="w-full" />
           <div className="text-xs text-slate-400">
             Özel model eklemek için + butonuna tıklayın
+          </div>
+        </div>
+      )
+    },
+    {
+      id: "provider-manager",
+      type: "provider-manager",
+      title: "AI Sağlayıcıları",
+      isMaximizable: true,
+      isRemovable: true,
+      isCollapsible: true,
+      defaultWidth: 100,
+      defaultHeight: 600,
+      position: { x: 0, y: 0, width: 100, height: 600 },
+      component: (
+        <div className="space-y-2">
+          <ProviderManager />
+          <div className="text-xs text-slate-400">
+            OpenAI-compatible API sağlayıcılarını yönetin
           </div>
         </div>
       )

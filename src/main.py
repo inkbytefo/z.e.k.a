@@ -109,22 +109,22 @@ class ZEKAAssistant:
         try:
             self.logger.info("Ajanlar kaydediliyor...")
 
-            # OpenRouter istemcisini başlat
-            from src.core.openrouter_client import OpenRouterClient
+            # OpenAI istemcisini başlat
+            from src.core.openai_client import OpenAIClient
             try:
                 # .env dosyasından model bilgisini al, yoksa varsayılan değeri kullan
-                default_model = os.getenv("DEFAULT_MODEL", "mistralai/devstral-small:free")
+                default_model = os.getenv("DEFAULT_MODEL", "gpt-4o-mini")
                 self.logger.info(f"Dil modeli başlatılıyor: {default_model}")
 
-                # OpenRouter istemcisini başlat
-                openrouter_client = OpenRouterClient(
+                # OpenAI istemcisini başlat
+                openai_client = OpenAIClient(
                     default_model=default_model,
                     timeout=120.0,  # 2 dakika zaman aşımı
-                    max_retries=5   # 5 kez yeniden deneme
+                    max_retries=3   # 3 kez yeniden deneme
                 )
-                self.logger.info("OpenRouter istemcisi başarıyla başlatıldı")
+                self.logger.info("OpenAI istemcisi başarıyla başlatıldı")
             except Exception as e:
-                self.logger.error(f"OpenRouter istemcisi başlatılırken hata: {str(e)}", exc_info=True)
+                self.logger.error(f"OpenAI istemcisi başlatılırken hata: {str(e)}", exc_info=True)
                 raise ZEKAError(f"Dil modeli başlatılamadı: {str(e)}")
 
             # Sohbet ajanı
@@ -132,7 +132,7 @@ class ZEKAAssistant:
             conversation_agent.set_memory_access(self.memory_manager.get_access_interface())
             conversation_agent.set_user_profile_access(self.user_profile.get_access_interface())
             conversation_agent.set_mcp_manager(self.mcp_manager)
-            conversation_agent.set_language_model(openrouter_client)  # Dil modelini ayarla
+            conversation_agent.set_language_model(openai_client)  # Dil modelini ayarla
             self.orchestrator.register_agent(
                 "conversation_agent",
                 conversation_agent,

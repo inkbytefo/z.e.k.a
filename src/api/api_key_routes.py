@@ -33,6 +33,7 @@ class APIKeyResponse(BaseModel):
 
 class APIKeyListItem(BaseModel):
     service_name: str
+    masked_key: str
     metadata: Dict[str, Any]
     created_at: str
     updated_at: str
@@ -120,14 +121,14 @@ async def set_api_key(request: APIKeyRequest, user_id: str = "default_user"):
     try:
         # Güvenli yapılandırma yöneticisini başlat
         secure_config = SecureConfig(user_id=user_id, storage_path=USERS_PATH)
-        
+
         # API anahtarını ayarla
         success = secure_config.set_api_key(
             service_name=request.service_name,
             api_key=request.api_key,
             metadata=request.metadata
         )
-        
+
         if success:
             logging.info(f"API anahtarı başarıyla ayarlandı: {request.service_name}")
             return {
@@ -153,10 +154,10 @@ async def delete_api_key(service_name: str, user_id: str = "default_user"):
     try:
         # Güvenli yapılandırma yöneticisini başlat
         secure_config = SecureConfig(user_id=user_id, storage_path=USERS_PATH)
-        
+
         # API anahtarını sil
         success = secure_config.delete_api_key(service_name)
-        
+
         if success:
             logging.info(f"API anahtarı başarıyla silindi: {service_name}")
             return {
@@ -182,20 +183,31 @@ async def list_api_keys(user_id: str = "default_user"):
     try:
         # Güvenli yapılandırma yöneticisini başlat
         secure_config = SecureConfig(user_id=user_id, storage_path=USERS_PATH)
-        
+
         # API anahtarlarını listele
         keys = secure_config.list_api_keys()
-        
+
         # Yanıt formatına dönüştür
         key_list = []
         for key in keys:
+            # API anahtarını maskele (ilk 4 ve son 4 karakter hariç)
+            service_name = key.get("service", "")
+            api_key = secure_config.get_api_key(service_name)
+            masked_key = ""
+            if api_key:
+                if len(api_key) > 8:
+                    masked_key = api_key[:4] + "*" * (len(api_key) - 8) + api_key[-4:]
+                else:
+                    masked_key = "*" * len(api_key)
+
             key_list.append({
-                "service_name": key.get("service", ""),
+                "service_name": service_name,
+                "masked_key": masked_key,
                 "metadata": key.get("metadata", {}),
                 "created_at": key.get("created_at", ""),
                 "updated_at": key.get("updated_at", "")
             })
-        
+
         return {"keys": key_list}
     except Exception as e:
         logging.error(f"API anahtarları listelenirken hata: {str(e)}")

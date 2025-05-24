@@ -1,0 +1,86 @@
+{
+  "openai": {
+    "name": "OpenAI",
+    "description": "OpenAI GPT modelleri",
+    "base_url": "https://api.openai.com/v1",
+    "auth_type": "bearer",
+    "requires_api_key": true,
+    "env_key": "OPENAI_API_KEY",
+    "models": [
+      "gpt-4",
+      "gpt-4-turbo",
+      "gpt-4o",
+      "gpt-4o-mini",
+      "gpt-3.5-turbo"
+    ],
+    "supports_streaming": true,
+    "logo_url": "https://openai.com/favicon.ico"
+  },
+  "ollama": {
+    "name": "Ollama",
+    "description": "Yerel Ollama modelleri",
+    "base_url": "http://localhost:11434/v1",
+    "auth_type": "none",
+    "requires_api_key": false,
+    "env_key": "OLLAMA_API_KEY",
+    "models": [],
+    "supports_streaming": true,
+    "logo_url": "https://ollama.ai/favicon.ico"
+  },
+  "localai": {
+    "name": "LocalAI",
+    "description": "Yerel LocalAI modelleri",
+    "base_url": "http://localhost:8080/v1",
+    "auth_type": "bearer",
+    "requires_api_key": false,
+    "env_key": "LOCALAI_API_KEY",
+    "models": [],
+    "supports_streaming": true,
+    "logo_url": "https://localai.io/favicon.ico"
+  },
+  "groq": {
+    "name": "Groq",
+    "description": "Groq hızlı AI modelleri",
+    "base_url": "https://api.groq.com/openai/v1",
+    "auth_type": "bearer",
+    "requires_api_key": true,
+    "env_key": "GROQ_API_KEY",
+    "models": [
+      "llama3-8b-8192",
+      "llama3-70b-8192",
+      "mixtral-8x7b-32768"
+    ],
+    "supports_streaming": true,
+    "logo_url": "https://groq.com/favicon.ico"
+  },
+  "anthropic": {
+    "name": "Anthropic (via OpenAI format)",
+    "description": "Anthropic Claude modelleri OpenAI formatında",
+    "base_url": "https://api.anthropic.com/v1",
+    "auth_type": "bearer",
+    "requires_api_key": true,
+    "env_key": "ANTHROPIC_API_KEY",
+    "models": [
+      "claude-3-opus",
+      "claude-3-sonnet",
+      "claude-3-haiku"
+    ],
+    "supports_streaming": true,
+    "logo_url": "https://anthropic.com/favicon.ico"
+  },
+  "custom-openai": {
+    "name": "Custom OpenAI",
+    "description": "Özel OpenAI konfigürasyonu",
+    "base_url": "https://api.openai.com/v1",
+    "auth_type": "bearer",
+    "requires_api_key": false,
+    "models": [
+      "gpt-4",
+      "gpt-3.5-turbo"
+    ],
+    "supports_streaming": true,
+    "created_at": "2025-05-24T15:47:50.337623",
+    "updated_at": "2025-05-24T15:47:50.337634",
+    "custom": true
+  }
+}
